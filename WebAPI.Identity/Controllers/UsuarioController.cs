@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using WebAPI.Domain;
 using WebAPI.Identity.Dto;
+using WebAPI.Repository;
 
 namespace WebAPI.Identity.Controllers
 {
@@ -25,15 +26,19 @@ namespace WebAPI.Identity.Controllers
         private readonly IConfiguration _config;
         private readonly UserManager<Usuario> _userManager;
         private readonly SignInManager<Usuario> _signInManager;
+        private readonly RoleManager<Perfil> _roleManager;
         private readonly IMapper _mapper;
+        private readonly Context _context;
 
-        public UsuarioController(IConfiguration config, UserManager<Usuario> userManager,
-                              SignInManager<Usuario> signInManager, IMapper mapper)
+        public UsuarioController(IConfiguration config, UserManager<Usuario> userManager, RoleManager<Perfil> roleManager,
+                              SignInManager<Usuario> signInManager, IMapper mapper, Context context)
         {
             _config = config;
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
             _mapper = mapper;
+            _context = context;
         }
         // GET: api/Usuario
         [HttpGet]
@@ -50,16 +55,16 @@ namespace WebAPI.Identity.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(usuarioLogin.Nome))
-                    return BadRequest($"{nameof(usuarioLogin.Nome)} deve ser informado.");
+                if (string.IsNullOrEmpty(usuarioLogin.Login))
+                    return BadRequest($"{nameof(usuarioLogin.Login)} deve ser informado.");
 
-                if (usuarioLogin.Nome.Length < 6 || usuarioLogin.Nome.Length > 11)
-                    return BadRequest($"{nameof(usuarioLogin.Nome)} deve ter no mínimo 6 e máximo 11 dígitos. Nome: {usuarioLogin.Nome}");
+                if (usuarioLogin.Login.Length < 6 || usuarioLogin.Login.Length > 11)
+                    return BadRequest($"{nameof(usuarioLogin.Login)} deve ter no mínimo 6 e máximo 11 dígitos. Nome: {usuarioLogin.Login}");
 
-                if (!usuarioLogin.Nome.All(char.IsDigit))
-                    return BadRequest($"{nameof(usuarioLogin.Nome)} deve ser número.");
+                if (!usuarioLogin.Login.All(char.IsDigit))
+                    return BadRequest($"{nameof(usuarioLogin.Login)} deve ser número.");
                                 
-                var user = await _userManager.FindByNameAsync(usuarioLogin.Nome);
+                var user = await _userManager.FindByNameAsync(usuarioLogin.Login);
 
                 var result = await _signInManager
                     .CheckPasswordSignInAsync(user, usuarioLogin.Password, false);
@@ -98,7 +103,7 @@ namespace WebAPI.Identity.Controllers
                     return BadRequest($"{nameof(usuarioDto.Login)} deve ser informado.");
 
                 if (usuarioDto.Login.Length < 6 || usuarioDto.Login.Length > 11)
-                    return BadRequest($"{nameof(usuarioDto.Nome)} deve ter no mínimo 6 e máximo 11 dígitos. Nome: {usuarioDto.Login}");
+                    return BadRequest($"{nameof(usuarioDto.Login)} deve ter no mínimo 6 e máximo 11 dígitos. Nome: {usuarioDto.Login}");
 
                 if (!usuarioDto.Login.All(char.IsDigit))
                     return BadRequest($"{nameof(usuarioDto.Login)} deve ser número.");
@@ -113,8 +118,7 @@ namespace WebAPI.Identity.Controllers
                         Nome = usuarioDto.Nome,
                         Cpf = usuarioDto.Login.Length == 11 ? usuarioDto.Login : "",
                         Matricula = usuarioDto.Login.Length == 11 ? "" : usuarioDto.Login,
-                        DataNascimento = usuarioDto.DataNascimento,
-                        
+                        DataNascimento = usuarioDto.DataNascimento                        
                     };
 
                     var result = await _userManager.CreateAsync(usuario, usuarioDto.Password);
@@ -126,22 +130,46 @@ namespace WebAPI.Identity.Controllers
 
                         var token = GenerateJWToken(appUsuario).Result;
 
-                        var user = await _userManager.FindByNameAsync(usuario.UserName);
-
-                        if (user != null)
+                        //TODO refatorar para tirar acoplamento.
+                        if (usuario.UserName.Length == 11)
                         {
-                            //TODO refatorar para tirar acoplamento.
-                            if(usuario.UserName.Length == 11)
-                                await _userManager.AddToRoleAsync(user, "Cliente");
-                            else
-                                await _userManager.AddToRoleAsync(user, "Operador");
-                        }                        
+                            var perfilCliente = await _roleManager.FindByNameAsync("Cliente");
+
+                            if (perfilCliente == null)
+                                await _roleManager.CreateAsync(new Perfil { Name = "Cliente" });
+
+                            await _userManager.AddToRoleAsync(usuario, "Cliente");
+                        }
+                        else
+                        {
+                            var perfilCliente = await _roleManager.FindByNameAsync("Operador");
+
+                            if (perfilCliente == null)
+                                await _roleManager.CreateAsync(new Perfil { Name = "Operador" });
+
+                            await _userManager.AddToRoleAsync(usuario, "Operador");
+                        }
+
+                        var endereco = new Endereco
+                        {
+                            Cep = usuarioDto.Endereco.Cep,
+                            Cidade = usuarioDto.Endereco.Cidade,
+                            Complemento = usuarioDto.Endereco.Complemento,
+                            Logradouro = usuarioDto.Endereco.Logradouro,
+                            Numero = usuarioDto.Endereco.Numero,
+                            Estado = usuarioDto.Endereco.Estado,
+                            UsuarioId = usuario.Id
+                        };
+
+                        _context.Enderecos.Add(endereco);
+                        await _context.SaveChangesAsync();
+
 
                         return Ok(token);
                     }
                 }
 
-                return Unauthorized();
+                return Ok("Usuário já existe");
             }
             catch (Exception ex)
             {

@@ -11,13 +11,12 @@ namespace WebAPI.Domain
         [Key]
         public int Id { get; set; }
         public string Placa { get; set; }        
-        public string Ano { get; set; }
+        public int Ano { get; set; }
         public string Combustivel { get; set; }
-        public string ValorHora { get; set; }
-        public string LimitePortaMalas { get; set; }
+        public decimal ValorHora { get; set; }
+        public int LimitePortaMalas { get; set; }
         public string Categoria { get; set; }
         public MarcaModeloVeiculo MarcaModeloVeiculo { get; set; }
-
         public int MarcaModeloVeiculoId { get; set; }
     }
 }

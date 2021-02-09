@@ -29,21 +29,11 @@ namespace WebAPI.Repository
                         .WithMany(r => r.PerfisUsuario)
                         .HasForeignKey(ur => ur.UserId)
                         .IsRequired();
-            });
-
-            builder.Entity<Endereco>(org =>
-            {
-                org.ToTable("Enderecos");
-                org.HasKey(x => x.Id);
-
-                org.HasMany<Usuario>()
-                    .WithOne()
-                    .HasForeignKey(x => x.EnderecoId)
-                    .IsRequired(false);
-            });
+            });            
         }
 
-        public DbSet<MarcaModeloVeiculo> MarcaModeloVeiculo { get; set; }
+        public DbSet<MarcaModeloVeiculo> MarcaModeloVeiculos { get; set; }
         public DbSet<Veiculo> Veiculos { get; set; }
+        public DbSet<Endereco> Enderecos { get; set; }
     }
 }

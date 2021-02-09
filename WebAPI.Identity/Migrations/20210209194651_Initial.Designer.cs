@@ -10,7 +10,7 @@ using WebAPI.Repository;
 namespace WebAPI.Identity.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20210209114444_Initial")]
+    [Migration("20210209194651_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -93,10 +93,11 @@ namespace WebAPI.Identity.Migrations
 
             modelBuilder.Entity("WebAPI.Domain.Endereco", b =>
                 {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Cep");
+                    b.Property<int>("Cep");
 
                     b.Property<string>("Cidade");
 
@@ -108,7 +109,11 @@ namespace WebAPI.Identity.Migrations
 
                     b.Property<string>("Numero");
 
+                    b.Property<int>("UsuarioId");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Enderecos");
                 });
@@ -125,7 +130,7 @@ namespace WebAPI.Identity.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MarcaModeloVeiculo");
+                    b.ToTable("MarcaModeloVeiculos");
                 });
 
             modelBuilder.Entity("WebAPI.Domain.Perfil", b =>
@@ -186,8 +191,6 @@ namespace WebAPI.Identity.Migrations
 
                     b.Property<bool>("EmailConfirmed");
 
-                    b.Property<string>("EnderecoId");
-
                     b.Property<bool>("LockoutEnabled");
 
                     b.Property<DateTimeOffset?>("LockoutEnd");
@@ -217,8 +220,6 @@ namespace WebAPI.Identity.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EnderecoId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
 
@@ -236,19 +237,19 @@ namespace WebAPI.Identity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Ano");
+                    b.Property<int>("Ano");
 
                     b.Property<string>("Categoria");
 
                     b.Property<string>("Combustivel");
 
-                    b.Property<string>("LimitePortaMalas");
+                    b.Property<int>("LimitePortaMalas");
 
                     b.Property<int>("MarcaModeloVeiculoId");
 
                     b.Property<string>("Placa");
 
-                    b.Property<string>("ValorHora");
+                    b.Property<decimal>("ValorHora");
 
                     b.HasKey("Id");
 
@@ -289,6 +290,14 @@ namespace WebAPI.Identity.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("WebAPI.Domain.Endereco", b =>
+                {
+                    b.HasOne("WebAPI.Domain.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("WebAPI.Domain.PerfilUsuario", b =>
                 {
                     b.HasOne("WebAPI.Domain.Perfil", "Perfil")
@@ -300,13 +309,6 @@ namespace WebAPI.Identity.Migrations
                         .WithMany("PerfisUsuario")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("WebAPI.Domain.Usuario", b =>
-                {
-                    b.HasOne("WebAPI.Domain.Endereco")
-                        .WithMany()
-                        .HasForeignKey("EnderecoId");
                 });
 
             modelBuilder.Entity("WebAPI.Domain.Veiculo", b =>

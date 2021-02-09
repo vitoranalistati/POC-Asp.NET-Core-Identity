@@ -7,7 +7,7 @@ namespace WebAPI.Identity.Dto
 {
     public class UsuarioLoginDto
     {
-        public string Nome { get; set; }
+        public string Login { get; set; }
         public string Password { get; set; }
     }
 }

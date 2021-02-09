@@ -92,7 +92,8 @@ namespace WebAPI.Identity
 
             services.AddSingleton(mapper);
 
-            services.AddCors();            
+            services.AddCors();
+            services.AddScoped<DbContext, Context>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
