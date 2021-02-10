@@ -25,16 +25,33 @@ namespace WebAPI.Identity.Controllers
         }
 
         // GET: api/Veiculo
+        /// <summary>
+        /// Obtém o modelo Json Veiculo. 
+        /// </summary>
+        /// 
+        /// <returns>Modelo Veiculo</returns>
         [HttpGet]
         [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult Get()
         {
             return Ok(new Veiculo());
         }
 
-        // POST: apiVeiculo/CriaMarcaModelo        
+        // POST: apiVeiculo/CriaMarcaModelo  
+        /// <response code="201">Notificações enviadas</response>
+        /// <response code="400">Parâmetros inválidos</response>
+        /// <response code="401">Sem autorização</response>
+        /// <response code="500">Erro interno</response>
         [HttpPost("CriaMarcaModelo")]
         [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]        
         public async Task<IActionResult> CriaMarcaModelo(MarcaModeloVeiculo marcaModeloVeiculo)
         {
             try
@@ -57,9 +74,17 @@ namespace WebAPI.Identity.Controllers
             }
         }
 
-        // POST: apiVeiculo/CriaVeiculo        
+        // POST: apiVeiculo/CriaVeiculo 
+        /// <response code="201">Notificações enviadas</response>
+        /// <response code="400">Parâmetros inválidos</response>
+        /// <response code="401">Sem autorização</response>
+        /// <response code="500">Erro interno</response>
         [HttpPost("CriaVeiculo")]
         [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]        
         public async Task<IActionResult> CriaVeiculo(Veiculo veiculo)
         {
             try
@@ -105,9 +130,17 @@ namespace WebAPI.Identity.Controllers
         }
 
 
-        // POST: apiVeiculo/SimularLocacao        
+        // POST: apiVeiculo/SimularLocacao  
+        /// <response code="201">Notificações enviadas</response>
+        /// <response code="400">Parâmetros inválidos</response>
+        /// <response code="401">Sem autorização</response>
+        /// <response code="500">Erro interno</response>
         [HttpPost("SimularLocacao")]
         [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SimularLocacao(VeiculoSimulacaoDto veiculoSimulacao)
         {
             try
@@ -128,7 +161,8 @@ namespace WebAPI.Identity.Controllers
                     return BadRequest($"{nameof(veiculoSimulacao.Placa)} não existe.");
                 }
                 else
-                {                    
+                {
+                    //TODO: Refatorar
                     TimeSpan ts = veiculoSimulacao.DataFinal - veiculoSimulacao.DataInicial;
                     
                     veiculoSimulacao.TotalHorasLocacao = Convert.ToInt32(Math.Ceiling(ts.TotalHours));
@@ -145,9 +179,17 @@ namespace WebAPI.Identity.Controllers
             }
         }
 
-        // POST: apiVeiculo/SimularAgendamento        
+        // POST: apiVeiculo/SimularAgendamento  
+        /// <response code="201">Notificações enviadas</response>
+        /// <response code="400">Parâmetros inválidos</response>
+        /// <response code="401">Sem autorização</response>
+        /// <response code="500">Erro interno</response>
         [HttpPost("SimularAgendamento")]
         [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]        
         public async Task<IActionResult> SimularAgendamento(VeiculoAgendamentoDto veiculoAgendamento)
         {
             try
@@ -169,6 +211,7 @@ namespace WebAPI.Identity.Controllers
                 }
                 else
                 {
+                    //TODO: Refatorar
                     TimeSpan ts = veiculoAgendamento.DataFinal - veiculoAgendamento.DataInicial;
 
                     veiculoAgendamento.TotalHorasLocacao = Convert.ToInt32(Math.Ceiling(ts.TotalHours));
@@ -185,5 +228,83 @@ namespace WebAPI.Identity.Controllers
             }
         }
 
+        // POST: apiVeiculo/CheckListDevolucao        
+
+        /// <response code="201">Notificações enviadas</response>
+        /// <response code="400">Parâmetros inválidos</response>
+        /// <response code="401">Sem autorização</response>
+        /// <response code="500">Erro interno</response>
+        [HttpPost("CheckListDevolucao")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]        
+        public async Task<IActionResult> CheckListDevolucao(CheckListDevolucaoDto checkListDevolucao)
+        {
+            try
+            {
+                if (checkListDevolucao.DataInicial == DateTime.MinValue)
+                    return BadRequest($"{nameof(checkListDevolucao.DataInicial)} deve ser informado.");
+
+                if (checkListDevolucao.DataFinal == DateTime.MinValue)
+                    return BadRequest($"{nameof(checkListDevolucao.DataFinal)} deve ser informado.");
+
+                if (string.IsNullOrEmpty(checkListDevolucao.Placa))
+                    return BadRequest($"{nameof(checkListDevolucao.Placa)} deve ser informado.");
+
+                var veiculoExiste = await _context.Veiculos.FirstOrDefaultAsync(x => x.Placa.ToUpper().Trim() == checkListDevolucao.Placa.ToUpper().Trim());
+
+                if (veiculoExiste == null)
+                {
+                    return BadRequest($"{nameof(checkListDevolucao.Placa)} não existe.");
+                }
+                else
+                {
+                    //TODO: Refatorar
+                    TimeSpan ts = checkListDevolucao.DataFinal - checkListDevolucao.DataInicial;
+
+                    checkListDevolucao.TotalHorasLocacao = Convert.ToInt32(Math.Ceiling(ts.TotalHours));
+                    checkListDevolucao.ValorTotalLocacao = Convert.ToDecimal(checkListDevolucao.TotalHorasLocacao) * veiculoExiste.ValorHora;
+                    checkListDevolucao.ValorHora = veiculoExiste.ValorHora;
+
+                    CalcularCustoAdicional(checkListDevolucao);
+
+                    return Ok(checkListDevolucao);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError,
+                    $"ERROR {ex.Message}");
+            }
+        }
+
+        private static void CalcularCustoAdicional(CheckListDevolucaoDto checkListDevolucao)
+        {
+            decimal custoTotalItem = (checkListDevolucao.PercentualCustoAdicional / 100) * checkListDevolucao.ValorTotalLocacao;  
+            
+            if (!checkListDevolucao.CarroLimpo)
+            {            
+                checkListDevolucao.ValorTotalLocacao = checkListDevolucao.ValorTotalLocacao + custoTotalItem;
+                checkListDevolucao.CustoTotalComItensDevolucao += custoTotalItem;
+            }
+            if (!checkListDevolucao.TanqueCheio)
+            {
+                checkListDevolucao.ValorTotalLocacao = checkListDevolucao.ValorTotalLocacao + custoTotalItem;
+                checkListDevolucao.CustoTotalComItensDevolucao += custoTotalItem;
+            }
+            if (!checkListDevolucao.Amassados)
+            {
+                checkListDevolucao.ValorTotalLocacao = checkListDevolucao.ValorTotalLocacao + custoTotalItem;
+                checkListDevolucao.CustoTotalComItensDevolucao += custoTotalItem;
+            }
+            if (!checkListDevolucao.Arranhoes)
+            {
+                checkListDevolucao.ValorTotalLocacao = checkListDevolucao.ValorTotalLocacao + custoTotalItem;
+                checkListDevolucao.CustoTotalComItensDevolucao += custoTotalItem;
+            }
+        }
     }
 }
