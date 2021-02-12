@@ -1,0 +1,244 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Poc Usuario",
+		"_postman_id": "e744f01a-0cbe-db32-624d-eb684f00a52a",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "RegistrarUsuario",
+			"request": {
+				"url": "http://localhost:54912/api/usuario/registrar",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"login\": \"123456\",\n    \"nome\": \"Teste\",\n    \"cpf\": \"\",\n    \"matricula\": \"\",\n    \"dataNascimento\": \"2021-02-08T00:10:00\",\n    \"Endereco\": {\n      \"Cep\": \"30400250\",\n      \"Logradouro\": \"Rua Teste 2\",\n      \"Numero\": \"1252\",\n      \"Complemento\": \"Apt22\",\n      \"Cidade\": \"Belo Horizonte\",\n      \"Estado\": \"MG\"  \n    },\n    \"password\": \"1234\",\n    \"confirmPassword\": \"1234\"\n}\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"url": "http://localhost:54912/api/usuario/login",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"login\": \"123456\",\n    \"password\": \"1234\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Perfil",
+			"request": {
+				"url": "http://localhost:54912/api/perfil",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwidW5pcXVlX25hbWUiOiJWaXRvciIsInJvbGUiOiJPcGVyYWRvciIsIm5iZiI6MTYxMjgxNjIzOCwiZXhwIjoxNjEyOTAyNjM4LCJpYXQiOjE2MTI4MTYyMzh9.dNps1DgmsVyEcAIFYCjhhBeE-cjQT6kmNi9QMb72VySUX7VdMgn25Y2HX1X9_xF39dAT7JP9AxB-uEA8tM90MQ",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CriaPerfil",
+			"request": {
+				"url": "http://localhost:54912/api/perfil/CriaPerfil",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiI0IiwidW5pcXVlX25hbWUiOiJaZSIsIm5iZiI6MTYxMjgxNDM1MywiZXhwIjoxNjEyOTAwNzUzLCJpYXQiOjE2MTI4MTQzNTN9.0eqcktgJ92pgU4k-4okA2D3KX340mXqCx_xkl4gpRwlYHX9xnx-LSZIfumQb2Mv-eCPSOFVI958G1GgCujLPaA",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"nome\":\"Cliente\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "AtualizaPerfilUsuario",
+			"request": {
+				"url": "http://localhost:54912/api/perfil/AtualizaPerfilUsuario",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiI0IiwidW5pcXVlX25hbWUiOiJaZSIsIm5iZiI6MTYxMjgxNDM1MywiZXhwIjoxNjEyOTAwNzUzLCJpYXQiOjE2MTI4MTQzNTN9.0eqcktgJ92pgU4k-4okA2D3KX340mXqCx_xkl4gpRwlYHX9xnx-LSZIfumQb2Mv-eCPSOFVI958G1GgCujLPaA",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"nome\": \"Teste\",\n\t\"perfil\": \"Cliente\",\n\t\"delete\": false\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CriaMarcaModelo",
+			"request": {
+				"url": "http://localhost:54912/api/Veiculo/CriaMarcaModelo",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"marca\": \"Ford\",\n    \"modelo\": \"Ecosport\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CriaVeiculo",
+			"request": {
+				"url": "http://localhost:54912/api/Veiculo/CriaVeiculo",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"placa\": \"picles\",\n    \"ano\": \"2020\",\n    \"combustivel\": \"gasolina\",\n    \"valorHora\": \"100\",\n    \"limitePortaMalas\": \"550\",\n    \"categoria\": \"luxo\",\n    \"marcaModeloVeiculo\": {\n      \"marca\": \"VW\",\n      \"modelo\": \"Tiguan\"\n    },\n    \"marcaModeloVeiculoId\": 0\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "CriaEndereco",
+			"request": {
+				"url": "http://localhost:54912/api/Endereco/CriaEndereco",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": null,\n    \"cep\": \"30400250\",\n    \"logradouro\": \"Rua teste\",\n    \"numero\": \"265\",\n    \"complemento\": \"Ap 302\",\n    \"cidade\": \"Belo Horizonte\",\n    \"estado\": \"MG\",\n    \"usuario\": null\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "SimularLocacao",
+			"request": {
+				"url": "http://localhost:54912/api/Veiculo/SimularLocacao",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"placa\": \"picles\",\n    \"dataInicial\": \"2021-02-01T00:00:00\",\n    \"dataFinal\": \"2021-02-09T00:10:00\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "SimularAgendamento",
+			"request": {
+				"url": "http://localhost:54912/api/Veiculo/SimularAgendamento",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"categoria\": \"basico\",\n    \"dataInicial\": \"2021-02-01T00:00:00\",\n    \"dataFinal\": \"2021-02-09T00:10:00\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GerarContratoLocacao",
+			"request": {
+				"url": "http://localhost:54912/api/Contrato/GerarContratoLocacao",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": "",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIzIiwidW5pcXVlX25hbWUiOiIxMjM0NTYiLCJyb2xlIjoiT3BlcmFkb3IiLCJuYmYiOjE2MTI5OTM4MTAsImV4cCI6MTYxMzA4MDIxMCwiaWF0IjoxNjEyOTkzODEwfQ.9U-T6OJH6iAbeuz25kDkIOaBPYp9wK2p27iJZCb7h2BpZJJruBJVNrY9g1GjR4UM-r2PiSMCOOkIs2hlXbt_jw",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"Placa\": \"picles\",\r\n  \"DataInicial\": \"2021-02-10T21:14:36.315Z\",\r\n  \"DataFinal\": \"2021-02-10T21:14:36.315Z\",\r\n  \"ValorTotalLocacao\": 0,\r\n  \"TotalHorasLocacao\": 0\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

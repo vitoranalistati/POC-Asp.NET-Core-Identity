@@ -23,6 +23,7 @@ namespace WebAPI.Identity.Controllers
             _roleManager = roleManager;
             _userManager = userManager;
         }
+
         // GET: api/Perfil
         //Apenas exemplo para mostrar que de acordo com perfil se tem a autorização
         [HttpGet] 
@@ -46,7 +47,8 @@ namespace WebAPI.Identity.Controllers
 
         // POST: api/Role/CriaPerfil
         //Método utilizado para criar o perfil(Operador ou Cliente ou etc...)
-        [HttpPost("CriaPerfil")]        
+        [HttpPost("CriaPerfil")]
+        [Authorize(Roles = "Operador")]
         public async Task<IActionResult> CriaPerfil(PerfilDto perfilDto)
         {
             try
@@ -64,6 +66,7 @@ namespace WebAPI.Identity.Controllers
 
         //Método utilizado para atualizar o relacionamento entre usuário e perfil(Operador ou Cliente)
         [HttpPut("AtualizaPerfilUsuario")]
+        [Authorize(Roles = "Operador")]
         public async Task<IActionResult> AtualizaPerfilUsuario(AtualizaPerfilUsuarioDto model)
         {
             try
