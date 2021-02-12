@@ -40,25 +40,8 @@ namespace WebAPI.Identity.Controllers
             _mapper = mapper;
             _context = context;
         }
-
-        // GET: api/Usuario
-        /// <summary>
-        /// Obtém o modelo Json Usuario. 
-        /// </summary>
-        /// 
-        /// <returns>Modelo Usuario</returns>
-        [HttpGet]
-        [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult Get()
-        {
-            return Ok(new UsuarioDto());
-        }
-
-        // GET: api/Usuario/5
+                
+        // GET: apiUsuario/Login
         /// <response code="201">Notificações enviadas</response>
         /// <response code="400">Parâmetros inválidos</response>
         /// <response code="401">Sem autorização</response>
@@ -110,7 +93,7 @@ namespace WebAPI.Identity.Controllers
             }
         }
 
-        // POST: api/Registrar
+        // POST: apiUsuario/Registrar
         /// <response code="201">Notificações enviadas</response>
         /// <response code="400">Parâmetros inválidos</response>
         /// <response code="401">Sem autorização</response>

@@ -1,19 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Domain;
 using WebAPI.Identity.Dto;
 using WebAPI.Repository;
-using DinkToPdf;
-using WebAPI.Identity.Utility;
-using System.IO;
 
 namespace WebAPI.Identity.Controllers
 {
@@ -21,43 +14,24 @@ namespace WebAPI.Identity.Controllers
     [ApiController]
     public class VeiculoController : ControllerBase
     {        
-        private readonly Context _context;
-        private IConverter _converter;
+        private readonly Context _context;        
 
-        public VeiculoController(Context context, IConverter converter)
+        public VeiculoController(Context context)
         {
-            _context = context;
-            _converter = converter;
+            _context = context;            
         }
-
-        // GET: api/Veiculo
-        /// <summary>
-        /// Obtém o modelo Json Veiculo. 
-        /// </summary>
-        /// 
-        /// <returns>Modelo Veiculo</returns>
-        [HttpGet]
-        [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult Get()
-        {
-            return Ok(new Veiculo());
-        }
-
+                
         // POST: apiVeiculo/CriaMarcaModelo  
         /// <response code="201">Notificações enviadas</response>
         /// <response code="400">Parâmetros inválidos</response>
         /// <response code="401">Sem autorização</response>
         /// <response code="500">Erro interno</response>
-        [HttpPost("CriaMarcaModelo")]
-        [AllowAnonymous]
+        [HttpPost("CriaMarcaModelo")]        
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]        
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Operador")]
         public async Task<IActionResult> CriaMarcaModelo(MarcaModeloVeiculo marcaModeloVeiculo)
         {
             try
@@ -85,12 +59,12 @@ namespace WebAPI.Identity.Controllers
         /// <response code="400">Parâmetros inválidos</response>
         /// <response code="401">Sem autorização</response>
         /// <response code="500">Erro interno</response>
-        [HttpPost("CriaVeiculo")]
-        [AllowAnonymous]
+        [HttpPost("CriaVeiculo")]        
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]        
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Operador")]
         public async Task<IActionResult> CriaVeiculo(Veiculo veiculo)
         {
             try
@@ -135,117 +109,17 @@ namespace WebAPI.Identity.Controllers
             }
         }
 
-
-        // POST: apiVeiculo/SimularLocacao  
+        // POST: apiVeiculo/CheckListDevolucao
         /// <response code="201">Notificações enviadas</response>
         /// <response code="400">Parâmetros inválidos</response>
         /// <response code="401">Sem autorização</response>
         /// <response code="500">Erro interno</response>
-        [HttpPost("SimularLocacao")]
-        [AllowAnonymous]
+        [HttpPost("CheckListDevolucao")]        
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> SimularLocacao(VeiculoSimulacaoDto veiculoSimulacao)
-        {
-            try
-            {
-                if (veiculoSimulacao.DataInicial == DateTime.MinValue)
-                    return BadRequest($"{nameof(veiculoSimulacao.DataInicial)} deve ser informado.");
-
-                if (veiculoSimulacao.DataFinal == DateTime.MinValue)
-                    return BadRequest($"{nameof(veiculoSimulacao.DataFinal)} deve ser informado.");
-
-                if (string.IsNullOrEmpty(veiculoSimulacao.Placa))
-                    return BadRequest($"{nameof(veiculoSimulacao.Placa)} deve ser informado.");
-
-                var veiculoExiste = await _context.Veiculos.FirstOrDefaultAsync(x => x.Placa.ToUpper().Trim() == veiculoSimulacao.Placa.ToUpper().Trim());
-
-                if (veiculoExiste == null)
-                {
-                    return BadRequest($"{nameof(veiculoSimulacao.Placa)} não existe.");
-                }
-                else
-                {
-                    //TODO: Refatorar
-                    TimeSpan ts = veiculoSimulacao.DataFinal - veiculoSimulacao.DataInicial;
-                    
-                    veiculoSimulacao.TotalHorasLocacao = Convert.ToInt32(Math.Ceiling(ts.TotalHours));
-                    veiculoSimulacao.ValorTotalLocacao = Convert.ToDecimal(veiculoSimulacao.TotalHorasLocacao) * veiculoExiste.ValorHora;
-
-                    return Ok(veiculoSimulacao);
-                    
-                }                
-            }
-            catch (Exception ex)
-            {
-                return this.StatusCode(StatusCodes.Status500InternalServerError,
-                    $"ERROR {ex.Message}");
-            }
-        }
-
-        // POST: apiVeiculo/SimularAgendamento  
-        /// <response code="201">Notificações enviadas</response>
-        /// <response code="400">Parâmetros inválidos</response>
-        /// <response code="401">Sem autorização</response>
-        /// <response code="500">Erro interno</response>
-        [HttpPost("SimularAgendamento")]
-        [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]        
-        public async Task<IActionResult> SimularAgendamento(VeiculoAgendamentoDto veiculoAgendamento)
-        {
-            try
-            {
-                if (veiculoAgendamento.DataInicial == DateTime.MinValue)
-                    return BadRequest($"{nameof(veiculoAgendamento.DataInicial)} deve ser informado.");
-
-                if (veiculoAgendamento.DataFinal == DateTime.MinValue)
-                    return BadRequest($"{nameof(veiculoAgendamento.DataFinal)} deve ser informado.");
-
-                if (string.IsNullOrEmpty(veiculoAgendamento.categoria))
-                    return BadRequest($"{nameof(veiculoAgendamento.categoria)} deve ser informado.");
-
-                var veiculoExiste = await _context.Veiculos.FirstOrDefaultAsync(x => x.Categoria.ToUpper().Trim() == veiculoAgendamento.categoria.ToUpper().Trim());
-
-                if (veiculoExiste == null)
-                {
-                    return BadRequest($"{nameof(veiculoAgendamento.categoria)} não existe.");
-                }
-                else
-                {
-                    //TODO: Refatorar
-                    TimeSpan ts = veiculoAgendamento.DataFinal - veiculoAgendamento.DataInicial;
-
-                    veiculoAgendamento.TotalHorasLocacao = Convert.ToInt32(Math.Ceiling(ts.TotalHours));
-                    veiculoAgendamento.ValorTotalLocacao = Convert.ToDecimal(veiculoAgendamento.TotalHorasLocacao) * veiculoExiste.ValorHora;
-
-                    return Ok(veiculoAgendamento);
-
-                }
-            }
-            catch (Exception ex)
-            {
-                return this.StatusCode(StatusCodes.Status500InternalServerError,
-                    $"ERROR {ex.Message}");
-            }
-        }
-
-        // POST: apiVeiculo/CheckListDevolucao        
-
-        /// <response code="201">Notificações enviadas</response>
-        /// <response code="400">Parâmetros inválidos</response>
-        /// <response code="401">Sem autorização</response>
-        /// <response code="500">Erro interno</response>
-        [HttpPost("CheckListDevolucao")]
-        [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]        
+        [Authorize(Roles = "Operador")]
         public async Task<IActionResult> CheckListDevolucao(CheckListDevolucaoDto checkListDevolucao)
         {
             try
@@ -266,8 +140,7 @@ namespace WebAPI.Identity.Controllers
                     return BadRequest($"{nameof(checkListDevolucao.Placa)} não existe.");
                 }
                 else
-                {
-                    //TODO: Refatorar
+                {                    
                     TimeSpan ts = checkListDevolucao.DataFinal - checkListDevolucao.DataInicial;
 
                     checkListDevolucao.TotalHorasLocacao = Convert.ToInt32(Math.Ceiling(ts.TotalHours));
@@ -286,77 +159,7 @@ namespace WebAPI.Identity.Controllers
                     $"ERROR {ex.Message}");
             }
         }
-
-
-        [HttpPost("GerarContratoLocacao")]
-        [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GerarContratoLocacao(VeiculoSimulacaoDto veiculoSimulacao)
-        {
-
-            try
-            {
-                if (veiculoSimulacao.DataInicial == DateTime.MinValue)
-                    return BadRequest($"{nameof(veiculoSimulacao.DataInicial)} deve ser informado.");
-
-                if (veiculoSimulacao.DataFinal == DateTime.MinValue)
-                    return BadRequest($"{nameof(veiculoSimulacao.DataFinal)} deve ser informado.");
-
-                if (string.IsNullOrEmpty(veiculoSimulacao.Placa))
-                    return BadRequest($"{nameof(veiculoSimulacao.Placa)} deve ser informado.");
-
-                var veiculoExiste = await _context.Veiculos.FirstOrDefaultAsync(x => x.Placa.ToUpper().Trim() == veiculoSimulacao.Placa.ToUpper().Trim());
-
-                if (veiculoExiste == null)
-                {
-                    return BadRequest($"{nameof(veiculoSimulacao.Placa)} não existe.");
-                }
-                else
-                {
-                    //TODO: Refatorar
-                    TimeSpan ts = veiculoSimulacao.DataFinal - veiculoSimulacao.DataInicial;
-
-                    veiculoSimulacao.TotalHorasLocacao = Convert.ToInt32(Math.Ceiling(ts.TotalHours));
-                    veiculoSimulacao.ValorTotalLocacao = Convert.ToDecimal(veiculoSimulacao.TotalHorasLocacao) * veiculoExiste.ValorHora;
-
-                    var globalSettings = new GlobalSettings
-                    {
-                        ColorMode = ColorMode.Color,
-                        Orientation = Orientation.Portrait,
-                        PaperSize = PaperKind.A4,
-                        Margins = new MarginSettings { Top = 10 },
-                        DocumentTitle = "Contrato de Locação"
-                    };
-                    var objectSettings = new ObjectSettings
-                    {
-                        PagesCount = true,
-                        HtmlContent = TemplateGenerator.GetHTMLString(veiculoSimulacao),
-                        WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), "assets", "styles.css") },
-                        HeaderSettings = { FontName = "Arial", FontSize = 9, Right = "Page [page] of [toPage]", Line = true },
-                        FooterSettings = { FontName = "Arial", FontSize = 9, Line = true, Center = "Fim" }
-                    };
-                    var pdf = new HtmlToPdfDocument()
-                    {
-                        GlobalSettings = globalSettings,
-                        Objects = { objectSettings }
-                    };
-
-                    var file = _converter.Convert(pdf);
-                    return File(file, "application/pdf", "ContratoLocacao.pdf");
-
-                }
-            }
-            catch (Exception ex)
-            {
-                return this.StatusCode(StatusCodes.Status500InternalServerError,
-                    $"ERROR {ex.Message}");
-            }            
-        }
-
-
+        
         private static void CalcularCustoAdicional(CheckListDevolucaoDto checkListDevolucao)
         {
             decimal custoTotalItem = (checkListDevolucao.PercentualCustoAdicional / 100) * checkListDevolucao.ValorTotalLocacao;  

@@ -23,6 +23,7 @@ namespace WebAPI.Identity.Controllers
             _roleManager = roleManager;
             _userManager = userManager;
         }
+
         // GET: api/Perfil
         //Apenas exemplo para mostrar que de acordo com perfil se tem a autorização
         [HttpGet] 
